@@ -8,6 +8,10 @@ class GameController {
     this.entityToPosMap = null;
     this.entityFromPosMap = null;
 
+    this.tilemap = {
+      layers: {},
+      tileTypes: {} // denotes an identifier for the tile indices
+    };
     this.groups = {}; // a map of all groups for the current scene
 
     this.preventMovement = false;
@@ -65,11 +69,24 @@ class GameController {
     scene.tilemap = scene.make.tilemap({ data: data, tileWidth: GAME_CONSTANTS.TILE_SIZE, tileHeight: GAME_CONSTANTS.TILE_SIZE });
     const tiles = scene.tilemap.addTilesetImage(tileId);
     const layer = scene.tilemap.createStaticLayer(layerId, tiles, 0, 0);
+    this.tilemap.layers[layerId] = layer;
     return {tilemap: scene.tilemap, layer: layer};
   }
 
   getTileMap(scene) {
     return scene.tilemap;
+  }
+
+  getTileMapLayer(layerId) {
+    return this.tilemap.layers[layerId || 0];
+  }
+
+  addTileType(type, index) {
+    this.tilemap.tileTypes[type] = index;
+  }
+
+  getTileTypeIndex(type) {
+    return this.tilemap.tileTypes[type];
   }
 
   update(scene, time, delta) {

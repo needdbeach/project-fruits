@@ -93,11 +93,17 @@ class Player extends BaseEntity {
 
   releaseItem() {
     if (this.item !== null) {
+      // check if the item is overlapping a solid game object/tile
+      if (!this.scene.physics.overlap(this.item, getGameController().getTileMapLayer(0), function() {
+        this.item.isInSolid = true;
+        this.item.moveOutSolidDir = Direction.opposite(this.direction);
+      }, this.item.isSolidTile, this)) {
+        this.item.body.setVelocityX(this.body.velocity.x);
+        this.item.body.setVelocityY(-350);
+        this.item.body.setGravityY(500);
+      }
       this.item.preventHolder = this.item.holder;
       this.item.holder = null;
-      this.item.body.setVelocityX(this.body.velocity.x);
-      this.item.body.setVelocityY(-350);
-      this.item.body.setGravityY(500);
       this.item = null;
     }
   }
