@@ -80,7 +80,7 @@ class Player extends BaseEntity {
     //const fruitGroup = getGameController().getGroupById("fruitGroup");
     //fruitGroup.killAndHide(item);
     //item.body.enable = false;
-    if (item.preventHolder === player) {
+    if (player.item !== null || item.preventHolder === player) {
       return;
     }
     item.body.setVelocityX(0);
