@@ -104,10 +104,6 @@ class GameController {
     // update the input manager
     this.inputManager.update();
 
-    // used to store each entities to/from positions in a map
-    this.entityToPosMap = {};
-    this.entityFromPosMap = {};
-
     // preupdate
     for (const id in this.entities) {
       if (this.entities.hasOwnProperty(id)) {
@@ -115,9 +111,6 @@ class GameController {
         entity.preUpdateCall(time, delta);
       }
     }
-
-    // grid-based collisions need to be handled before update method
-    //this.handleGridCollisions();
 
     // update
     for (const id in this.entities) {

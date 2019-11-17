@@ -9,9 +9,23 @@ class Item extends BaseEntity {
 
   update(time, delta) {
     super.update(time, delta);
+    const gameController = getGameController();
+
+    // still aboard the moving platform?
+    if (!this.body.touching.down) {
+      // remove from the moving platform
+      if (this.mvPlatform !== null) {
+        this.mvPlatform.removePassenger(this.id);
+        this.mvPlatform = null;
+      }
+    } else {
+      // need to check and make sure the object this entity is "touching" is the moving platform we are assigned to
+
+    }
 
     if (this.isInSolid) {
-      if (!this.scene.physics.overlap(this, getGameController().getTileMapLayer(0), this.moveOutSolid, this.isSolidTile, this)) {
+      if (!this.scene.physics.overlap(this, gameController.getTileMapLayer(0), this.moveOutSolid, Collision.tile.isSolid, this)
+          && !this.scene.physics.overlap(this, gameController.getGroupById("platformGroup"), this.moveOutSolid, null, this)) {
         // apply gravity
         this.body.reset(this.x, this.y);
         this.body.setGravityY(this.gravity);
@@ -20,7 +34,7 @@ class Item extends BaseEntity {
     }
 
     // apply deceleration
-    if (!this.holder && this.body.blocked.down) {
+    if (!this.holder && (this.body.blocked.down || this.body.touching.down)) {
       let xs = this.body.velocity.x;
       if (xs > 0) {
         xs -= this.dec;
@@ -53,8 +67,15 @@ class Item extends BaseEntity {
     }
   }
 
-  isSolidTile(item, tile) {
-    return tile.index === getGameController().getTileTypeIndex("solid");
+  static collideSolid(item, platform) {
+    // become passenger of moving platform
+    if (item.body.touching.down && platform instanceof MovingPlatform) {
+      let boundsA = new Phaser.Geom.Rectangle(item.x, item.y + 1, item.getBounds().width, item.getBounds().height);
+      if (Phaser.Geom.Intersects.GetRectangleIntersection(boundsA, platform.getBounds())) {
+        platform.addPassenger(item);
+        item.mvPlatform = platform;
+      }
+    }
   }
 
   /**

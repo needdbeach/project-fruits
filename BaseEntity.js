@@ -11,6 +11,9 @@ class BaseEntity extends Phaser.Physics.Arcade.Sprite {
     this.gravity = 500;
     this.hdir = 0;
     this.turnSpd = 6;
+
+    this.mvPlatform = null; // represents the reference to the moving platform this entity is aboard
+
     this.tweenPreventMovement = false;
   }
 

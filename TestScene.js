@@ -20,10 +20,10 @@ class TestScene extends Phaser.Scene {
       [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
       [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
       [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
       [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
       [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
       [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
       [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -119,13 +119,55 @@ class TestScene extends Phaser.Scene {
     eaterGroup.add(eater);
     this.physics.add.existing(eater);
 
+
+    // Platforms
+    const platformGroup = this.physics.add.group({
+      classType: Platform
+    });
+
+    let mvplatform = new MovingPlatform({
+      id: 4,
+      scene: this,
+      x: 160,
+      y: 64,
+      movementType: GAME_CONSTANTS.movementType.NONE,
+      texture: "mvplatform",
+      points: [{x: 160, y: 64}, {x: 240, y: 64}],
+      from: 0,
+      yoyo: true
+    });
+    platformGroup.add(mvplatform);
+
+    this.physics.add.existing(mvplatform);
+    mvplatform.body.immovable = true;
+
+
+    let mvplatform2 = new MovingPlatform({
+      id: 5,
+      scene: this,
+      x: 272,
+      y: 208,
+      movementType: GAME_CONSTANTS.movementType.NONE,
+      texture: "mvplatform",
+      points: [{x: 272, y: 208}, {x: 240, y: 64}],
+      from: 0,
+      yoyo: true
+    });
+    platformGroup.add(mvplatform2);
+
+    this.physics.add.existing(mvplatform2);
+    mvplatform2.body.immovable = true;
+
+
     // Setup the collisions
 
     // collision between player and "solid" tiles
     this.physics.add.collider(player, configs.layer, player.collideSolid);
-    this.physics.add.collider(fruitGroup, configs.layer);
 
-    this.physics.add.overlap(player, fruitGroup, player.hold);
+    this.physics.add.collider(player, platformGroup, player.collideSolid);
+    this.physics.add.collider(fruitGroup, platformGroup, Item.collideSolid);
+
+    this.physics.add.collider(fruitGroup, configs.layer);
 
     // Add the instances to the game controller
 
@@ -137,6 +179,9 @@ class TestScene extends Phaser.Scene {
 
     this.gameController.addGroupToScene(this, eaterGroup); // add the eater group to the scene
     this.gameController.addGroup("eaterGroup", eaterGroup);
+
+    this.gameController.addGroupToScene(this, platformGroup); // add the platform group to the scene
+    this.gameController.addGroup("platformGroup", platformGroup);
   }
 
   update(time, delta) {
