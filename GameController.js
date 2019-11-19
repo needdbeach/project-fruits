@@ -62,15 +62,15 @@ class GameController {
 
   setTileMap(config) {
     const scene = config.scene;
-    const layerId = config.layer || 0;
-    const tileId = config.id;
     const data = config.data; // represents the layout of tiles on the scene
     // When loading from an array, make sure to specify the tileWidth and tileHeight
-    scene.tilemap = scene.make.tilemap({ data: data, tileWidth: GAME_CONSTANTS.TILE_SIZE, tileHeight: GAME_CONSTANTS.TILE_SIZE });
-    const tiles = scene.tilemap.addTilesetImage(tileId);
-    const layer = scene.tilemap.createStaticLayer(layerId, tiles, 0, 0);
-    this.tilemap.layers[layerId] = layer;
-    return {tilemap: scene.tilemap, layer: layer};
+    scene.tilemap = scene.make.tilemap({ key: config.key });
+    const tiles = scene.tilemap.addTilesetImage(config.tileId);
+    return {tilemap: scene.tilemap, tiles: tiles};
+  }
+
+  addTileLayer(scene, layerId, tiles, x, y) {
+    this.tilemap.layers[layerId] = scene.tilemap.createStaticLayer(layerId, tiles, x, y);
   }
 
   getTileMap(scene) {

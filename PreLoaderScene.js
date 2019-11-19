@@ -5,7 +5,8 @@ class PreLoaderScene extends Phaser.Scene {
 
   preload() {
     // Runs once, loads up assets (images, audio, etc.)
-    this.load.image("tiles", "/imgs/tileset2.png");
+    this.load.tilemapTiledJSON('map', 'maps/map.json');
+    this.load.image("tileset", "/imgs/tileset2.png");
     // this.load.image("tiles", "/imgs/tileset3.png");
     this.load.image("mvplatform", "/imgs/mvplatform.png");
     this.load.image("eater", "/imgs/eater.png");

@@ -13,37 +13,29 @@ class TestScene extends Phaser.Scene {
     this.gameController.getInputManager().addKey(this, Phaser.Input.Keyboard.KeyCodes.UP);
     this.gameController.getInputManager().addKey(this, Phaser.Input.Keyboard.KeyCodes.DOWN);
 
-
-    // Runs once, after all assets in preload are loaded
-    // Load a map from a 2D array of tile indices
-    const level = [
-      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      [1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      [1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-    ];
-
     this.gameController.addTileType("empty", 0);
     this.gameController.addTileType("solid", 1);
 
     const configs = this.gameController.setTileMap({
       scene: this,
-      layer: 0,
-      id: "tiles",
-      data: level
+      key: "map",
+      tileId: "tileset"
     });
-    configs.tilemap.setCollision([1], true, false, configs.layer);
+
+    this.gameController.addTileLayer(this, TILE.LAYER_GROUND, configs.tiles, 0, 0);
+    this.gameController.addTileLayer(this, TILE.LAYER_ONEWAY, configs.tiles, 0, 0); // represents one-way platforms
+
+    this.gameController.getTileMapLayer(TILE.LAYER_GROUND).setCollision([2]);
+    this.gameController.getTileMapLayer(TILE.LAYER_ONEWAY).setCollision([3]);
+
+    this.gameController.getTileMapLayer(TILE.LAYER_ONEWAY).forEachTile(function(tile) {
+      if (tile.index === 3) {
+        tile.collideUp = true;
+        tile.collideLeft = false;
+        tile.collideRight = false;
+        tile.collideDown = false;
+      }
+    });
 
     // Player/Fruits/Other instances
 
@@ -162,12 +154,14 @@ class TestScene extends Phaser.Scene {
     // Setup the collisions
 
     // collision between player and "solid" tiles
-    this.physics.add.collider(player, configs.layer, player.collideSolid);
+    this.physics.add.collider(player, this.gameController.getTileMapLayer(TILE.LAYER_GROUND), player.collideSolid);
+    this.physics.add.collider(player, this.gameController.getTileMapLayer(TILE.LAYER_ONEWAY), player.collideSolid);
 
     this.physics.add.collider(player, platformGroup, player.collideSolid);
     this.physics.add.collider(fruitGroup, platformGroup, Item.collideSolid);
 
-    this.physics.add.collider(fruitGroup, configs.layer);
+    this.physics.add.collider(fruitGroup, this.gameController.getTileMapLayer(TILE.LAYER_GROUND));
+    this.physics.add.collider(fruitGroup, this.gameController.getTileMapLayer(TILE.LAYER_ONEWAY));
 
     // Add the instances to the game controller
 
